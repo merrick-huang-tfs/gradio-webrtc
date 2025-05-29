@@ -130,12 +130,14 @@
     devices,
     node,
   ) => {
-    hasMic = devices.some((device) => {
-            return device.kind === "audioinput" && device.deviceId;
-          }) && hasMicPermission
-    hasCamera = devices.some(
-      (device) => device.kind === "videoinput" && device.deviceId,
-    ) && hasCameraPermission
+    hasMic =
+      devices.some((device) => {
+        return device.kind === "audioinput" && device.deviceId;
+      }) && hasMicPermission;
+    hasCamera =
+      devices.some(
+        (device) => device.kind === "videoinput" && device.deviceId,
+      ) && hasCameraPermission;
     await get_stream(
       audioDeviceId && audioDeviceId !== "default"
         ? { deviceId: { exact: audioDeviceId } }
@@ -232,9 +234,9 @@
     fillStream(audioDeviceId, videoDeviceId, devices, node);
   };
   let hasCamera = true;
-  let hasCameraPermission = true
+  let hasCameraPermission = true;
   let hasMic = true;
-  let hasMicPermission = true // 部分设备上无法通过设备列表判断
+  let hasMicPermission = true; // 部分设备上无法通过设备列表判断
   async function update_available_devices() {
     const devices = await get_devices();
     available_video_devices = set_available_devices(devices, "videoinput");
@@ -252,16 +254,16 @@
           audio: true,
         })
         .catch(() => {
-          console.log('no audio permission')
-          hasMicPermission = false
+          console.log("no audio permission");
+          hasMicPermission = false;
         });
       await navigator.mediaDevices
         .getUserMedia({
           video: true,
         })
         .catch(() => {
-          console.log('no video permission')
-          hasCameraPermission = false
+          console.log("no video permission");
+          hasCameraPermission = false;
         });
       const devices = await get_devices();
       console.log("🚀 ~ access_webcam ~ devices:", devices);
@@ -319,53 +321,60 @@
     }
   }
   function on_send(message: string) {
-    if (!message) return
+    if (!message) return;
     chat_data_channel.send(JSON.stringify({ type: "chat", data: message }));
     replying = true;
-    chatRecordsInstance?.expose?.scrollToBottom()
+    chatRecordsInstance?.expose?.scrollToBottom();
   }
-  let inlineDisplayChatRecords = true
-  let showChatRecords = false;
-  function handle_subtitle_toggle(){
-    showChatRecords = !showChatRecords
-    computeRemotePosition()
+  let inlineDisplayChatRecords = true;
+  let showChatRecords = true;
+  function handle_subtitle_toggle() {
+    showChatRecords = !showChatRecords;
+    computeRemotePosition();
   }
-  let chatRecordsInstance
-  let chatRecords: Array<{ id: string; role: 'human'|'avatar'; message: string }> = [];
+  let chatRecordsInstance;
+  let chatRecords: Array<{
+    id: string;
+    role: "human" | "avatar";
+    message: string;
+  }> = [];
   function on_channel_message(event: any) {
     const data = JSON.parse(event.data);
     if (data.type === "chat") {
-      const index =  chatRecords.findIndex(item => {
-        return item.id === data.id
-      })
-      if (index!==-1) {
-        const item = chatRecords[index]
+      const index = chatRecords.findIndex((item) => {
+        return item.id === data.id;
+      });
+      if (index !== -1) {
+        const item = chatRecords[index];
         item.message += data.message;
-        chatRecords.splice(index,1,item)
-        chatRecords = [...chatRecords]
-      }else{
-        chatRecords = [...chatRecords,{
-          id: data.id,
-          role: data.role || 'human', // TODO: 默认值测试后续删除
-          message: data.message
-        }];
+        chatRecords.splice(index, 1, item);
+        chatRecords = [...chatRecords];
+      } else {
+        chatRecords = [
+          ...chatRecords,
+          {
+            id: data.id,
+            role: data.role || "human", // TODO: 默认值测试后续删除
+            message: data.message,
+          },
+        ];
       }
     } else if (data.type === "avatar_end") {
       replying = false;
     }
   }
-  function computeChatRecordsPosition(){
-    if(videoShowType === "side-by-side"){
-      inlineDisplayChatRecords = true
-      return
+  function computeChatRecordsPosition() {
+    if (videoShowType === "side-by-side") {
+      inlineDisplayChatRecords = true;
+      return;
     }
-    const containerWidth = wrapperRef.offsetWidth
-    const remoteVideoWidth = remoteVideoPosition.width
-    inlineDisplayChatRecords = (remoteVideoWidth+46)>(containerWidth/2)
+    const containerWidth = wrapperRef.offsetWidth;
+    const remoteVideoWidth = remoteVideoPosition.width;
+    inlineDisplayChatRecords = remoteVideoWidth + 46 > containerWidth / 2;
   }
   async function start_webrtc(): Promise<void> {
     if (stream_state === "closed") {
-      chatRecords = []
+      chatRecords = [];
       pc = new RTCPeerConnection(rtc_configuration);
       pc.addEventListener("connectionstatechange", async (event) => {
         switch (pc.connectionState) {
@@ -396,7 +405,7 @@
         .then(([connection, datachannel]) => {
           pc = connection;
           webcam_received = true;
-          onplayingRemoteVideo()
+          onplayingRemoteVideo();
 
           chat_data_channel = datachannel;
 
@@ -424,7 +433,7 @@
       stop(pc);
       stream_state = "closed";
       webcam_received = false;
-      chatRecords = []
+      chatRecords = [];
       await access_webcam();
       if (avatar_type === "gs") {
         localAvatarRenderer?.exit();
@@ -440,7 +449,7 @@
       assetsPath: avatar_assets_path,
       ws: ws,
       loadProgress: (progress) => {
-        console.log('gs loadProgress', progress)
+        console.log("gs loadProgress", progress);
         gsLoadPercent = progress;
         if (progress >= 1) {
           computeRemotePosition();
@@ -451,11 +460,10 @@
     return gaussianAvatar;
   }
 
-  let assetLoaded = true
-  $: if (avatar_type === 'gs') {
-     assetLoaded = gsLoadPercent >= 1
-    }
-
+  let assetLoaded = true;
+  $: if (avatar_type === "gs") {
+    assetLoaded = gsLoadPercent >= 1;
+  }
 
   let wrapperRef: HTMLDivElement;
   const wrapperRect = {
@@ -495,7 +503,7 @@
     bottom: 0,
     init: false,
     isOverflow: false,
-    isOnVideoTop: false
+    isOnVideoTop: false,
   };
 
   // remoteVideoPosition
@@ -518,9 +526,9 @@
     } else if (videoShowType === "side-by-side") {
       videoShowType = "picture-in-picture";
     }
-    computeRemotePosition()
-    computeChatRecordsPosition()
-    computeRemotePosition()
+    computeRemotePosition();
+    computeChatRecordsPosition();
+    computeRemotePosition();
   }
   function computeChatInputPosition() {
     const newPosition = remoteVideoPosition.init
@@ -555,12 +563,11 @@
         wrapperRect.width,
       );
 
-      if(actionsPosition.left + 46 > wrapperRect.width){
-        actionsPosition.left =
-         actionsPosition.left - 60
-        actionsPosition.isOnVideoTop = true
-      }else{
-        actionsPosition.isOnVideoTop = false
+      if (actionsPosition.left + 46 > wrapperRect.width) {
+        actionsPosition.left = actionsPosition.left - 60;
+        actionsPosition.isOnVideoTop = true;
+      } else {
+        actionsPosition.isOnVideoTop = false;
       }
       actionsPosition.bottom =
         wrapperRect.height -
@@ -596,13 +603,13 @@
     }
     computeChatInputPosition();
   }
-  function onplayingRemoteVideo(){
-    computeRemotePosition() // 先计算出视频宽度
-    computeChatRecordsPosition() // 根据宽度更新inlineDisplayChatRecords标记
-    computeRemotePosition() // 再次根据标记计算出left
+  function onplayingRemoteVideo() {
+    computeRemotePosition(); // 先计算出视频宽度
+    computeChatRecordsPosition(); // 根据宽度更新inlineDisplayChatRecords标记
+    computeRemotePosition(); // 再次根据标记计算出left
   }
   function computeRemotePosition() {
-    if(stream_state !== 'open' && !websocketMode) return
+    if (stream_state !== "open" && !websocketMode) return;
     let height = wrapperRect.height - 24;
     let width = 0;
     if (websocketMode) {
@@ -618,9 +625,9 @@
       width = (height / remoteVideoRef.videoHeight) * remoteVideoRef.videoWidth;
       width > wrapperRect.width && (width = wrapperRect.width);
     }
-    if(showChatRecords && !inlineDisplayChatRecords){
-      remoteVideoPosition.left = (wrapperRect.width) / 2 - width;
-    }else{
+    if (showChatRecords && !inlineDisplayChatRecords) {
+      remoteVideoPosition.left = wrapperRect.width / 2 - width;
+    } else {
       remoteVideoPosition.left = (wrapperRect.width - width) / 2;
     }
     remoteVideoPosition.top = wrapperRect.height - height;
@@ -650,10 +657,13 @@
     computeLocalPosition();
     computeRemotePosition();
     computeChatRecordsPosition();
-    computeRemotePosition()
+    computeRemotePosition();
   });
 
-  $: actionsOnBottom = !actionsPosition.isOnVideoTop||!showChatRecords||showChatRecords && !inlineDisplayChatRecords 
+  $: actionsOnBottom =
+    !actionsPosition.isOnVideoTop ||
+    !showChatRecords ||
+    (showChatRecords && !inlineDisplayChatRecords);
 </script>
 
 <div class="wrap" style:height={height > 100 ? "100%" : "90vh"}>
@@ -715,35 +725,52 @@
       <!-- {#if websocketMode}
       <canvas bind:this={canvasRef} class="remote-canvas" height={remoteVideoPosition.height} width={remoteVideoPosition.width} ></canvas>
     {:else} -->
-    {#if !websocketMode}
-      <video
-        class="remote-video"
-        style:display={stream_state === 'open'?'block':'none'}
-        on:playing={onplayingRemoteVideo}
-        bind:this={remoteVideoRef}
-        autoplay
-        playsinline
-        muted={volumeMuted}
-      />
-      
-    {/if}
-    {#if stream_state === "open" && showChatRecords && inlineDisplayChatRecords}
-        <div class="chat-records-container" style={!hasCamera || cameraOff?'width:80%;padding-bottom:12px;':'padding-bottom:12px;'}>
-          <ChatRecords bind:this={chatRecordsInstance} chatRecords={chatRecords.filter((_, index) => index >= chatRecords.length - 4)}></ChatRecords>
+      {#if !websocketMode}
+        <video
+          class="remote-video"
+          style:display={stream_state === "open" ? "block" : "none"}
+          on:playing={onplayingRemoteVideo}
+          bind:this={remoteVideoRef}
+          autoplay
+          playsinline
+          muted={volumeMuted}
+        />
+      {/if}
+      {#if stream_state === "open" && showChatRecords && inlineDisplayChatRecords}
+        <div
+          class="chat-records-container"
+          style={!hasCamera || cameraOff
+            ? "width:80%;padding-bottom:12px;"
+            : "padding-bottom:12px;"}
+        >
+          <ChatRecords
+            bind:this={chatRecordsInstance}
+            chatRecords={chatRecords.filter(
+              (_, index) => index >= chatRecords.length - 4,
+            )}
+          ></ChatRecords>
         </div>
       {/if}
     </div>
     {#if stream_state === "open" && showChatRecords && !inlineDisplayChatRecords}
-    <!-- ${remoteVideoPosition.left+remoteVideoPosition.width+46+12+16}px -->
-    <div class="chat-records-container" style={`right: calc(50% - 60px); transform:translate(100%); width:${remoteVideoPosition.width}px; height: ${remoteVideoPosition.height}px;`}>
-      <ChatRecords bind:this={chatRecordsInstance} {chatRecords}></ChatRecords>
-    </div>
-  {/if}
+      <!-- ${remoteVideoPosition.left+remoteVideoPosition.width+46+12+16}px -->
+      <div
+        class="chat-records-container"
+        style={`right: calc(50% - 60px); transform:translate(100%); width:${remoteVideoPosition.width}px; height: ${remoteVideoPosition.height}px;`}
+      >
+        <ChatRecords bind:this={chatRecordsInstance} {chatRecords}
+        ></ChatRecords>
+      </div>
+    {/if}
     <div
       class="actions"
       style:left={isPictureInPicture ? actionsPosition.left + "px" : ""}
-      style:bottom={isPictureInPicture && actionsOnBottom  ? actionsPosition.bottom + "px" : ""}
-      style:top={isPictureInPicture && !actionsOnBottom  ? remoteVideoPosition.top+12+'px' : ""}
+      style:bottom={isPictureInPicture && actionsOnBottom
+        ? actionsPosition.bottom + "px"
+        : ""}
+      style:top={isPictureInPicture && !actionsOnBottom
+        ? remoteVideoPosition.top + 12 + "px"
+        : ""}
     >
       <div class="action-group">
         <!-- svelte-ignore a11y-missing-attribute -->
@@ -848,15 +875,14 @@
           {/if}
         </div>
         {#if wrapperRect.width > 300}
-        <div class="action" on:click={handle_subtitle_toggle}>
-          {#if showChatRecords}
-          <SubtitleOn></SubtitleOn>
-          {:else}
-          <SubtitleOff></SubtitleOff>
-          {/if}
-        </div>
+          <div class="action" on:click={handle_subtitle_toggle}>
+            {#if showChatRecords}
+              <SubtitleOn></SubtitleOn>
+            {:else}
+              <SubtitleOff></SubtitleOff>
+            {/if}
+          </div>
         {/if}
-
       </div>
       {#if hasCamera}
         <div class="action-group">
@@ -872,8 +898,6 @@
         </div>
       {/if}
     </div>
-    
-
   </div>
 
   {#if (!hasMic || micMuted) && stream_state === "open"}
@@ -947,7 +971,7 @@
           height: 100%;
           object-fit: cover;
         }
-        .chat-records-container{
+        .chat-records-container {
           position: absolute;
           right: 12px;
           bottom: 0;
@@ -997,7 +1021,7 @@
           object-fit: contain;
         }
 
-        .chat-records-container{
+        .chat-records-container {
           position: absolute;
           right: 12px;
           bottom: 16px;
