@@ -76,7 +76,7 @@ stopword = ["fastrtc-moonshine-onnx", "onnxruntime>=1.20.1"]
 stt = ["fastrtc-moonshine-onnx", "onnxruntime>=1.20.1"]
 
 [tool.hatch.build]
-artifacts = ["/backend/fastrtc/templates", "*.pyi"]
+artifacts = ["/backend/fastrtc/templates", "*.pyi", "/data/avatarchat/.venv/lib/python3.10/site-packages/fastrtc/templates"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["/backend/fastrtc"]

@@ -1,15 +1,15 @@
 <script lang="ts">
   import { Spinner } from "@gradio/icons";
   import AudioWave from "./AudioWave.svelte";
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from "svelte";
 
   const dispatch = createEventDispatcher();
 
   export let stream_state;
-  export let onStartChat
-  export let audio_source_callback
-  export let wave_color
-  export let assetLoaded = true
+  export let onStartChat;
+  export let audio_source_callback;
+  export let wave_color;
+  export let assetLoaded = true;
 </script>
 
 <div class="player-controls">
@@ -22,22 +22,22 @@
     on:click={onStartChat}
   >
     {#if stream_state === "closed"}
-      <span>点击开始对话</span>
+      <span>Click to start</span>
     {:else if stream_state === "waiting" || assetLoaded === false}
       <div class="waiting-icon-text">
         <div class="icon" title="spinner">
           <Spinner />
         </div>
-        <span>等待中</span>
+        <span>Waiting</span>
       </div>
     {:else}
       <div class="stop-chat-inner"></div>
     {/if}
   </div>
   {#if stream_state === "open" && assetLoaded === true}
-  <div class="input-audio-wave">
-    <AudioWave {audio_source_callback} {stream_state} {wave_color} />
-  </div>
+    <div class="input-audio-wave">
+      <AudioWave {audio_source_callback} {stream_state} {wave_color} />
+    </div>
   {/if}
 </div>
 
@@ -64,7 +64,7 @@
       cursor: pointer;
     }
     .start-chat {
-      font-size: 16px;
+      font-size: 24px; /* Increased from 16px to 24px */
       font-weight: 500;
       text-align: center;
       color: #ffffff;
@@ -72,7 +72,7 @@
     .waiting-icon-text {
       width: 80px;
       align-items: center;
-      font-size: 16px;
+      font-size: 24px; /* Increased from 16px to 24px */
       font-weight: 500;
       color: #ffffff;
       margin: 0 var(--spacing-sm);
